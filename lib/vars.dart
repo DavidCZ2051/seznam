@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-const String version = "1.6.0";
+const String version = "2.0.0";
 
-List<Clothing> clothes = [];
+List<Item> items = [];
 late ThemeMode themeMode;
 
 String colorToHex(Color color) {
@@ -32,12 +32,12 @@ MaterialColor materialColorMaker(String hex) {
   );
 }
 
-class Clothing {
+class Item {
   String name;
   int count;
   DateTime? lastChangedDateTime;
 
-  Clothing({
+  Item({
     required this.name,
     required this.count,
     required this.lastChangedDateTime,
@@ -49,7 +49,7 @@ class Clothing {
         "lastChangedDateTime": lastChangedDateTime?.toIso8601String(),
       };
 
-  Clothing.fromJson(Map<String, dynamic> json)
+  Item.fromJson(Map<String, dynamic> json)
       : name = json["name"],
         count = json["count"],
         lastChangedDateTime = json["lastChangedDateTime"] == null
@@ -69,14 +69,12 @@ loadData() async {
   debugPrint("loading data");
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  List<String> clothesList = prefs.getStringList("clothes") ?? [];
+  List<String> itemsList = prefs.getStringList("items") ?? [];
 
-  for (String clothing in clothesList) {
-    debugPrint(clothing);
-    clothes.add(Clothing.fromJson(jsonDecode(clothing)));
+  for (String item in itemsList) {
+    debugPrint(item);
+    items.add(Item.fromJson(jsonDecode(item)));
   }
-
-  //hexColor = prefs.getString("color") ?? "2196f3";
 
   themeMode = const {
     "light": ThemeMode.light,
@@ -90,17 +88,17 @@ loadData() async {
 Future saveData() async {
   debugPrint("saving data");
 
-  List<String> clothesList = [];
+  List<String> itemsList = [];
 
-  for (Clothing clothing in clothes) {
-    String json = jsonEncode(clothing);
-    clothesList.add(json);
+  for (Item item in items) {
+    String json = jsonEncode(item);
+    itemsList.add(json);
     debugPrint(json);
   }
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  prefs.setStringList("clothes", clothesList);
+  prefs.setStringList("items", itemsList);
 
   debugPrint("data saved");
 }
