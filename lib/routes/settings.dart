@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:seznam/vars.dart' as vars;
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, required this.onThemeChanged});
+
+  final Function() onThemeChanged;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -44,16 +46,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10),
           child: ReorderableListView(
-            header: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: AddItem(
-                onAdd: () {
-                  vars.saveData();
-                  setState(() {});
-                },
-              ),
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.list,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      "Položky",
+                      style: TextStyle(fontSize: 26),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: AddItem(
+                    onAdd: () {
+                      vars.saveData();
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ],
             ),
             onReorder: (int oldIndex, int newIndex) {
               setState(() {
@@ -64,7 +83,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 vars.saveData();
               });
             },
-            footer: const Placeholder(),
+            footer: Others(
+              onThemeChanged: widget.onThemeChanged,
+            ),
             children: [
               for (vars.Item item in vars.items)
                 ItemWidget(
@@ -289,7 +310,9 @@ class _ItemWidgetState extends State<ItemWidget> {
 }
 
 class Others extends StatefulWidget {
-  const Others({super.key});
+  const Others({super.key, required this.onThemeChanged});
+
+  final Function() onThemeChanged;
 
   @override
   State<Others> createState() => _OthersState();
@@ -298,6 +321,79 @@ class Others extends StatefulWidget {
 class _OthersState extends State<Others> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        const Divider(),
+        const Text(
+          "Ostatní nastavení",
+          style: TextStyle(fontSize: 26),
+        ),
+        ListTile(
+          title: const Text("Režim aplikace"),
+          trailing: DropdownButton(
+            value: vars.themeMode,
+            items: const [
+              DropdownMenuItem(
+                value: ThemeMode.light,
+                child: Text("Světlý"),
+              ),
+              DropdownMenuItem(
+                value: ThemeMode.dark,
+                child: Text("Tmavý"),
+              ),
+              DropdownMenuItem(
+                value: ThemeMode.system,
+                child: Text("Systémový"),
+              ),
+            ],
+            onChanged: (value) {
+              vars.themeMode = value!;
+              vars.saveData();
+              widget.onThemeChanged();
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text("Barva aplikace"),
+          trailing: DropdownButton(
+            value: vars.color,
+            items: Colors.primaries.map((color) {
+              return DropdownMenuItem(
+                value: color,
+                child: Row(
+                  children: [
+                    Container(
+                      color: color,
+                      height: 20,
+                      width: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(color.toHumanString()),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              vars.color = value!;
+              vars.saveData();
+              widget.onThemeChanged();
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text("O aplikaci"),
+          onTap: () {
+            showAboutDialog(
+              context: context,
+              applicationName: "Seznam věcí",
+              applicationVersion: vars.version,
+              applicationLegalese: "David Vobruba",
+            );
+          },
+        ),
+      ],
+    );
   }
 }

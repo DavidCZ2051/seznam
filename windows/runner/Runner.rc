@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "cz.davidcz2051" "\0"
-            VALUE "FileDescription", "intr_obleceni" "\0"
+            VALUE "FileDescription", "seznam_veci" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "intr_obleceni" "\0"
+            VALUE "InternalName", "seznam_veci" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 cz.davidcz2051. All rights reserved." "\0"
-            VALUE "OriginalFilename", "intr_obleceni.exe" "\0"
-            VALUE "ProductName", "intr_obleceni" "\0"
+            VALUE "OriginalFilename", "seznam_veci.exe" "\0"
+            VALUE "ProductName", "seznam_veci" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

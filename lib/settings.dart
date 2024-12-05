@@ -1,12 +1,12 @@
 /* import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:intr_obleceni/vars.dart';
+import 'package:seznam_veci/vars.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:intr_obleceni/vars.dart' as vars;
+import 'package:seznam_veci/vars.dart' as vars;
 import 'package:flutter/services.dart';
 import 'dart:io';
-import 'package:intr_obleceni/main.dart';
+import 'package:seznam_veci/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {

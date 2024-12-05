@@ -25,15 +25,21 @@ class _AppState extends State<App> {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
+        colorSchemeSeed: vars.color,
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
+        colorSchemeSeed: vars.color,
       ),
       initialRoute: "/",
       routes: {
         "/": (context) => const ItemsScreen(),
-        "/settings": (context) => const SettingsScreen(),
+        "/settings": (context) => SettingsScreen(
+              onThemeChanged: () {
+                setState(() {});
+              },
+            ),
       },
     );
   }

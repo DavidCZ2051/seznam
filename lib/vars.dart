@@ -7,36 +7,12 @@ const String version = "2.0.0";
 
 List<Item> items = [];
 late ThemeMode themeMode;
-
-String colorToHex(Color color) {
-  return color.value.toRadixString(16).substring(2, 8);
-}
-
-MaterialColor materialColorMaker(String hex) {
-  hex = "FF$hex";
-  int hexInt = int.parse(hex, radix: 16);
-
-  return MaterialColor(
-    hexInt,
-    <int, Color>{
-      50: Color(hexInt),
-      100: Color(hexInt),
-      200: Color(hexInt),
-      300: Color(hexInt),
-      400: Color(hexInt),
-      500: Color(hexInt),
-      600: Color(hexInt),
-      700: Color(hexInt),
-      800: Color(hexInt),
-      900: Color(hexInt),
-    },
-  );
-}
+late Color color;
 
 class Item {
   String name;
   int count;
-  DateTime? lastChangedDateTime;
+  DateTime lastChangedDateTime;
   Key key = Key(const Uuid().v4().toString());
 
   Item({
@@ -48,22 +24,18 @@ class Item {
   Map<String, dynamic> toJson() => {
         "name": name,
         "count": count,
-        "lastChangedDateTime": lastChangedDateTime?.toIso8601String(),
+        "lastChangedDateTime": lastChangedDateTime.toIso8601String(),
       };
 
   Item.fromJson(Map<String, dynamic> json)
       : name = json["name"],
         count = json["count"],
-        lastChangedDateTime = json["lastChangedDateTime"] == null
-            ? null
-            : DateTime.parse(json["lastChangedDateTime"] as String);
+        lastChangedDateTime =
+            DateTime.parse(json["lastChangedDateTime"] as String);
 
   String get lastChangedString {
     // dd.mm.yyyy
-    if (lastChangedDateTime == null) {
-      return "Neznámé";
-    }
-    return "${lastChangedDateTime!.day}.${lastChangedDateTime!.month}.${lastChangedDateTime!.year}";
+    return "${lastChangedDateTime.day}.${lastChangedDateTime.month}.${lastChangedDateTime.year}";
   }
 }
 
@@ -84,6 +56,8 @@ loadData() async {
     "system": ThemeMode.system
   }[prefs.getString("theme") ?? "system"]!;
 
+  String? colorString = prefs.getString("color");
+  color = ColorExtension.fromHumanString(colorString ?? "Blue");
   debugPrint("data loaded");
 }
 
@@ -101,6 +75,48 @@ Future saveData() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
   prefs.setStringList("items", itemsList);
+  prefs.setString(
+    "theme",
+    const {
+      ThemeMode.light: "light",
+      ThemeMode.dark: "dark",
+      ThemeMode.system: "system"
+    }[themeMode]!,
+  );
+  prefs.setString("color", color.toHumanString());
 
   debugPrint("data saved");
+}
+
+extension ColorExtension on Color {
+  static Map<Color, String> map = {
+    Colors.red: "Red",
+    Colors.pink: "Pink",
+    Colors.purple: "Purple",
+    Colors.deepPurple: "Deep Purple",
+    Colors.indigo: "Indigo",
+    Colors.blue: "Blue",
+    Colors.lightBlue: "Light Blue",
+    Colors.cyan: "Cyan",
+    Colors.teal: "Teal",
+    Colors.green: "Green",
+    Colors.lightGreen: "Light Green",
+    Colors.lime: "Lime",
+    Colors.yellow: "Yellow",
+    Colors.amber: "Amber",
+    Colors.orange: "Orange",
+    Colors.deepOrange: "Deep Orange",
+    Colors.brown: "Brown",
+    Colors.blueGrey: "Blue Grey",
+  };
+
+  String toHumanString() {
+    return map[this]!;
+  }
+
+  static Color fromHumanString(String humanString) {
+    return map.entries
+        .firstWhere((element) => element.value == humanString)
+        .key;
+  }
 }

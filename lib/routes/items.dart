@@ -15,8 +15,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Resetovat počet položek?"),
-          content: const Text("Opravdu chcete resetovat počet všech položek?"),
+          title: const Text("Resetovat počet všech položek?"),
           actions: <Widget>[
             TextButton(
               child: const Text("Zrušit"),
@@ -24,8 +23,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 Navigator.pop(context);
               },
             ),
-            OutlinedButton(
-              child: const Text("Resetovat"),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.restore),
+              label: const Text("Resetovat"),
               onPressed: () {
                 setState(() {
                   for (vars.Item item in vars.items) {
@@ -104,6 +104,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   tooltip: "Uložit",
                   heroTag: "btn2",
                   onPressed: () {
+                    vars.saveData();
                     setState(() {});
                   },
                   child: const Icon(Icons.save),
@@ -142,7 +143,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                       TextSpan(
                         text: "${widget.item.count}x ",
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
+                          color: vars.color,
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -202,13 +203,13 @@ class _ItemWidgetState extends State<ItemWidget> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
+                      color: vars.color,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
+                      color: vars.color,
                       width: 2,
                     ),
                   ),
