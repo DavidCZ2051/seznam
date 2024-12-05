@@ -52,8 +52,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
           IconButton(
             tooltip: "Nastavení",
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.pushNamed(context, "/settings");
+            onPressed: () async {
+              await Navigator.pushNamed(context, "/settings");
+              setState(() {});
             },
           ),
         ],
@@ -115,7 +116,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
 }
 
 class ItemWidget extends StatefulWidget {
-  const ItemWidget({Key? key, required this.item}) : super(key: key);
+  const ItemWidget({super.key, required this.item});
 
   final vars.Item item;
 

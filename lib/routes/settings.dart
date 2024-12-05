@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../vars.dart' as vars;
+import 'package:seznam/vars.dart' as vars;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,30 +24,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: <Widget>[
           IconButton(
             tooltip: "Smazat data",
-            icon: const Icon(Icons.delete),
+            icon: const Icon(Icons.delete_forever),
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Smazat všechna data?"),
-                  content: const Text("Tato akce je nevratná."),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text("Zrušit"),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          vars.items.clear();
-                          vars.saveData();
-                        });
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.delete),
-                      label: const Text("Smazat"),
-                    ),
-                  ],
+                builder: (context) => DeleteAllItemsDialog(
+                  onConfirm: () {
+                    setState(() {
+                      vars.items.clear();
+                      vars.saveData();
+                    });
+                    Navigator.pop(context);
+                  },
                 ),
               );
             },
@@ -55,21 +43,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView.builder(
-          itemCount: vars.items.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return AddItem(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ReorderableListView(
+            header: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: AddItem(
                 onAdd: () {
                   vars.saveData();
                   setState(() {});
                 },
-              );
-            }
-            return ItemWidget(vars.items[index - 1]);
-          },
+              ),
+            ),
+            onReorder: (int oldIndex, int newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) {
+                  newIndex -= 1;
+                }
+                vars.items.insert(newIndex, vars.items.removeAt(oldIndex));
+                vars.saveData();
+              });
+            },
+            footer: const Placeholder(),
+            children: [
+              for (vars.Item item in vars.items)
+                ItemWidget(
+                  item,
+                  key: item.key,
+                  onDeleted: () {
+                    setState(() {});
+                  },
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class DeleteAllItemsDialog extends StatelessWidget {
+  const DeleteAllItemsDialog({super.key, required this.onConfirm});
+
+  final Function() onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Smazat všechna data?"),
+      content: const Text("Tato akce je nevratná."),
+      actions: <Widget>[
+        TextButton(
+          child: const Text("Zrušit"),
+          onPressed: () => Navigator.pop(context),
+        ),
+        OutlinedButton.icon(
+          onPressed: onConfirm,
+          icon: const Icon(Icons.delete),
+          label: const Text("Smazat"),
+        ),
+      ],
     );
   }
 }
@@ -110,48 +143,148 @@ class AddItemState extends State<AddItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Form(
-        key: formKey,
-        child: TextFormField(
-          controller: _controller,
-          decoration: InputDecoration(
-            labelText: "Název",
-            suffixIcon: IconButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  addItem();
-                }
-              },
-              icon: const Icon(Icons.add),
-            ),
+    return Form(
+      key: formKey,
+      child: TextFormField(
+        controller: _controller,
+        decoration: InputDecoration(
+          labelText: "Název",
+          suffixIcon: IconButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                addItem();
+              }
+            },
+            icon: const Icon(Icons.add),
           ),
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return "Název nesmí být prázdný";
-            }
-            return null;
-          },
         ),
+        validator: (String? value) {
+          if (value == null || value.isEmpty) {
+            return "Název nesmí být prázdný";
+          }
+          return null;
+        },
       ),
     );
   }
 }
 
 class ItemWidget extends StatefulWidget {
-  const ItemWidget(this.item, {super.key});
+  const ItemWidget(this.item, {super.key, required this.onDeleted});
 
   final vars.Item item;
+  final Function() onDeleted;
 
   @override
   State<ItemWidget> createState() => _ItemWidgetState();
 }
 
 class _ItemWidgetState extends State<ItemWidget> {
+  void deleteItem() {
+    vars.items.remove(widget.item);
+    vars.saveData();
+    Navigator.pop(context);
+    widget.onDeleted();
+  }
+
+  void showDeleteItemDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Smazat tuto položku?"),
+          content: const Text("Tato akce je nevratná."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Zrušit"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            OutlinedButton.icon(
+              onPressed: deleteItem,
+              icon: const Icon(Icons.delete),
+              label: const Text("Smazat"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void renameItem(String newName) {
+    widget.item.name = newName;
+    vars.saveData();
+    setState(() {});
+  }
+
+  void showRenameItemDialog() async {
+    final TextEditingController controller =
+        TextEditingController(text: widget.item.name);
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Přejmenovat položku"),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Název nesmí být prázdný";
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Zrušit"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            OutlinedButton.icon(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  renameItem(controller.text);
+                  Navigator.pop(context);
+                }
+              },
+              icon: const Icon(Icons.edit),
+              label: const Text("Přejmenovat"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return ListTile(
+      title: Text(
+        widget.item.name,
+        style: const TextStyle(
+          fontSize: 25,
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            onPressed: showDeleteItemDialog,
+            tooltip: "Odstranit",
+            icon: const Icon(Icons.delete_outline),
+          ),
+          IconButton(
+            onPressed: showRenameItemDialog,
+            tooltip: "Přejmenovat",
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+    );
   }
 }
 

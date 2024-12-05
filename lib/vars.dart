@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:convert';
 
 const String version = "2.0.0";
@@ -36,6 +37,7 @@ class Item {
   String name;
   int count;
   DateTime? lastChangedDateTime;
+  Key key = Key(const Uuid().v4().toString());
 
   Item({
     required this.name,
