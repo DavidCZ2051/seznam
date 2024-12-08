@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:seznam/vars.dart' as vars;
+import 'package:seznam_veci/vars.dart' as vars;
 
 class ItemsScreen extends StatefulWidget {
   const ItemsScreen({super.key});

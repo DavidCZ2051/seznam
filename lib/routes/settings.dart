@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:seznam/vars.dart' as vars;
+import 'package:seznam_veci/vars.dart' as vars;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, required this.onThemeChanged});
@@ -23,26 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Navigator.pop(context);
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            tooltip: "Smazat data",
-            icon: const Icon(Icons.delete_forever),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => DeleteAllItemsDialog(
-                  onConfirm: () {
-                    setState(() {
-                      vars.items.clear();
-                      vars.saveData();
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -84,8 +64,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
             footer: Others(
-              onThemeChanged: widget.onThemeChanged,
-            ),
+                onThemeChanged: widget.onThemeChanged,
+                onItemsDeleted: () {
+                  setState(() {});
+                }),
             children: [
               for (vars.Item item in vars.items)
                 ItemWidget(
@@ -310,15 +292,49 @@ class _ItemWidgetState extends State<ItemWidget> {
 }
 
 class Others extends StatefulWidget {
-  const Others({super.key, required this.onThemeChanged});
+  const Others({
+    super.key,
+    required this.onThemeChanged,
+    required this.onItemsDeleted,
+  });
 
   final Function() onThemeChanged;
+  final Function() onItemsDeleted;
 
   @override
   State<Others> createState() => _OthersState();
 }
 
 class _OthersState extends State<Others> {
+  void showExportDataDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Export dat"),
+          content: TextField(
+            controller: TextEditingController(
+              text: vars.items.toJson().toString(),
+            ),
+            readOnly: true,
+          ),
+          actions: <Widget>[
+            OutlinedButton(
+              onPressed: () {},
+              child: Text(""),
+            ),
+            TextButton(
+              child: const Text("Zavřít"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showImportDataDialog() {}
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -332,6 +348,7 @@ class _OthersState extends State<Others> {
         ),
         ListTile(
           title: const Text("Režim aplikace"),
+          leading: const Icon(Icons.brightness_4),
           trailing: DropdownButton(
             value: vars.themeMode,
             items: const [
@@ -357,6 +374,7 @@ class _OthersState extends State<Others> {
         ),
         ListTile(
           title: const Text("Barva aplikace"),
+          leading: const Icon(Icons.color_lens),
           trailing: DropdownButton(
             value: vars.color,
             items: Colors.primaries.map((color) {
@@ -383,7 +401,35 @@ class _OthersState extends State<Others> {
           ),
         ),
         ListTile(
+          title: const Text("Exportovat data"),
+          leading: const Icon(Icons.upload),
+          onTap: showExportDataDialog,
+        ),
+        ListTile(
+          title: const Text("Importovat data"),
+          leading: const Icon(Icons.download),
+          onTap: showImportDataDialog,
+        ),
+        ListTile(
+          title: const Text("Smazat data"),
+          leading: const Icon(Icons.delete_forever),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => DeleteAllItemsDialog(
+                onConfirm: () {
+                  vars.items.clear();
+                  vars.saveData();
+                  widget.onItemsDeleted();
+                  Navigator.pop(context);
+                },
+              ),
+            );
+          },
+        ),
+        ListTile(
           title: const Text("O aplikaci"),
+          leading: const Icon(Icons.info),
           onTap: () {
             showAboutDialog(
               context: context,

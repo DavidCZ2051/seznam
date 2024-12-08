@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:seznam/routes/items.dart';
-import 'package:seznam/routes/settings.dart';
-import 'package:seznam/vars.dart' as vars;
+import 'package:seznam_veci/routes/items.dart';
+import 'package:seznam_veci/routes/settings.dart';
+import 'package:seznam_veci/vars.dart' as vars;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

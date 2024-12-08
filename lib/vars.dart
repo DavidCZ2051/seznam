@@ -9,6 +9,12 @@ List<Item> items = [];
 late ThemeMode themeMode;
 late Color color;
 
+extension ToJson on List<Item> {
+  List<Map<String, dynamic>> toJson() {
+    return map((item) => item.toJson()).toList();
+  }
+}
+
 class Item {
   String name;
   int count;
