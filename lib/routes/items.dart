@@ -65,6 +65,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 child: Column(
                   children: <Widget>[
                     for (vars.Item item in vars.items) ItemWidget(item: item),
+                    const SizedBox(height: 75),
                   ],
                 ),
               )
@@ -137,28 +138,31 @@ class _ItemWidgetState extends State<ItemWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: "${widget.item.count}x ",
-                        style: TextStyle(
-                          color: vars.color,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.only(left: 3),
+                  child: RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "${widget.item.count}x ",
+                          style: TextStyle(
+                            color: vars.color,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: widget.item.name,
-                        style: TextStyle(
-                          color:
-                              (Theme.of(context).brightness == Brightness.dark)
-                                  ? Colors.white
-                                  : Colors.black,
-                          fontSize: 30,
+                        TextSpan(
+                          text: widget.item.name,
+                          style: TextStyle(
+                            color: (Theme.of(context).brightness ==
+                                    Brightness.dark)
+                                ? Colors.white
+                                : Colors.black,
+                            fontSize: 30,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Padding(

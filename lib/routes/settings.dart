@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seznam_veci/vars.dart' as vars;
+import 'package:clipboard/clipboard.dart';
+import 'dart:convert';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, required this.onThemeChanged});
@@ -314,18 +316,25 @@ class _OthersState extends State<Others> {
           title: const Text("Export dat"),
           content: TextField(
             controller: TextEditingController(
-              text: vars.items.toJson().toString(),
+              text: vars.items.toJsonString(),
             ),
             readOnly: true,
+            maxLines: 10,
+            style: const TextStyle(
+              fontFamily: "IBM Plex Mono",
+            ),
           ),
           actions: <Widget>[
-            OutlinedButton(
-              onPressed: () {},
-              child: Text(""),
-            ),
             TextButton(
               child: const Text("Zavřít"),
               onPressed: () => Navigator.pop(context),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                FlutterClipboard.copy(vars.items.toJsonString());
+                Navigator.pop(context);
+              },
+              child: Text("Kopírovat"),
             ),
           ],
         );
@@ -333,7 +342,58 @@ class _OthersState extends State<Others> {
     );
   }
 
-  void showImportDataDialog() {}
+  void showImportDataDialog() {
+    final formKey = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Import dat"),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              maxLines: 10,
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Nesmí být prázdné";
+                }
+
+                try {
+                  List<vars.Item> items = [];
+
+                  for (Map<String, dynamic> item in jsonDecode(value)) {
+                    items.add(vars.Item.fromJson(item));
+                  }
+                  vars.items = items;
+                  vars.saveData();
+                  return null;
+                } catch (e) {
+                  return "Neplatný formát";
+                }
+              },
+              style: const TextStyle(
+                fontFamily: "IBM Plex Mono",
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Zavřít"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Importovat"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
