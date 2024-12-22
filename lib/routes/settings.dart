@@ -127,7 +127,7 @@ class AddItemState extends State<AddItem> {
 
   void addItem() {
     vars.items.add(vars.Item(
-      name: _controller.text,
+      name: _controller.text.trim(),
       count: 0,
       lastChangedDateTime: DateTime.now(),
     ));
@@ -250,7 +250,7 @@ class _ItemWidgetState extends State<ItemWidget> {
             OutlinedButton.icon(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  renameItem(controller.text);
+                  renameItem(controller.text.trim());
                   Navigator.pop(context);
                 }
               },
@@ -277,16 +277,22 @@ class _ItemWidgetState extends State<ItemWidget> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           IconButton(
-            onPressed: showDeleteItemDialog,
-            tooltip: "Odstranit",
-            icon: const Icon(Icons.delete_outline),
-          ),
-          IconButton(
             onPressed: showRenameItemDialog,
             tooltip: "Přejmenovat",
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit),
+          ),
+          IconButton(
+            onPressed: showDeleteItemDialog,
+            tooltip: "Odstranit",
+            icon: const Icon(Icons.delete),
           ),
           const SizedBox(width: 8),
+          ReorderableDragStartListener(
+            index: vars.items.indexOf(widget.item),
+            child: const Icon(
+              Icons.drag_handle,
+            ),
+          )
         ],
       ),
     );

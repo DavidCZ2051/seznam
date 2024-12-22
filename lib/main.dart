@@ -23,12 +23,10 @@ class _AppState extends State<App> {
       title: "Seznam věcí",
       themeMode: vars.themeMode,
       theme: ThemeData(
-        useMaterial3: true,
         brightness: Brightness.light,
         colorSchemeSeed: vars.color,
       ),
       darkTheme: ThemeData(
-        useMaterial3: true,
         brightness: Brightness.dark,
         colorSchemeSeed: vars.color,
       ),

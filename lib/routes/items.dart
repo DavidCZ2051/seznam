@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:seznam_veci/vars.dart' as vars;
 
+// TODO: Fix textfields not changing place when items are rearenged
+// TODO: Add InputAction to focus next textfield. Needs to group textfields into a focus group
+
 class ItemsScreen extends StatefulWidget {
   const ItemsScreen({super.key});
 
